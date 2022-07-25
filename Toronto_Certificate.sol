@@ -8,4 +8,25 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 contract Toronto_Certificate is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
+    mapping (uint256 => string) private _tokenURIs;
+    
+    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) // we dont mention its public as its new version of Solidity
+    { }
+
+    function _setTokenURI(uint256 tokenID, string memory _tokenURI) internal {
+        require(_exists(tokenID), "Token ID Does not exist to add URI");
+        _tokenURIs[tokenID] = _tokenURI;
+    }
+
+    function mint(address recipient, string memory nftURI) external onlyOwner(){
+        uint256 tokenID = totalSupply();
+        _mint(recipient, tokenID);
+        _setTokenURI(tokenID,nftURI);
+    }
+
+    function tokenURI(uint256 tokenID) public view virtual override returns(string memory){
+        require(_exists(tokenID), "Token ID Does not exist to add URI");
+        string memory _tokenURI = _tokenURIs[tokenID];
+        return _tokenURI;
+    }
 }
