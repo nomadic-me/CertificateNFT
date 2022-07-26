@@ -1,15 +1,23 @@
 import os
 import json
 from web3 import Web3
+import from web3 import Account
+#from web3.gas_strategies.time_based import medium
 from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
 import requests
 
+
 load_dotenv()
 
 # Create a W3 Connection
 w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
+private_key = os.getenv("PRIVATE_KEY")
+contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
+
+deg generate_account(w3, private_key):
+    account = Account 
 
 # Set up Pinata Headers
 json_headers = {
