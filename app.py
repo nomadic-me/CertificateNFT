@@ -1,13 +1,12 @@
 import os
 import json
+from web3 import Account
+#from web3.gas_strategies.time_based import medium_gas_price_strategy
 from web3 import Web3
-import from web3 import Account
-#from web3.gas_strategies.time_based import medium
 from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
 import requests
-
 
 load_dotenv()
 
@@ -16,8 +15,9 @@ w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
 private_key = os.getenv("PRIVATE_KEY")
 contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
 
-deg generate_account(w3, private_key):
-    account = Account 
+def generate_account(w3,private_key):
+    account = Account.privateKeyToAccount(private_key)
+    return account
 
 # Set up Pinata Headers
 json_headers = {
@@ -74,6 +74,11 @@ def pin_cert(cert_name, cert_file,**kwargs):
     return json_ipfs_hash, token_json
 
 
+# Pull in Ethereum Account - Used for signing transactions
+account = generate_account(w3,private_key)
+st.write("Loaded Account Address: ", account.address)
+st.write("Smart Contract Address: ", contract_address)
+
 ######################################################################
 ## Load the contract
 ######################################################################
@@ -120,10 +125,24 @@ if st.button("Award Certificate"):
 
     cert_uri = f"ipfs.io/ipfs/{cert_ipfs_hash}"
 
-    # THIS ONLY WORKS IN GANACHE
-    tx_hash = contract.functions.mint(student_account,cert_uri).transact({'from':student_account,'gas':1000000})
+    nonce = w3.eth.get_transaction_count(account.address)
+ 
+    tx = contract.functions.mint(student_account,cert_uri).buildTransaction({
+        'chainId':4,
+        'gas':20000000,
+        'nonce':nonce
+    })
+
+    st.write("Raw TX: ", tx)
+
+    signed_tx = account.sign_transaction(tx)
+
+    st.write("Signed TX Hash: ", signed_tx.rawTransaction)
+
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+
     # This generally works on the mainnet - Rinkeby, not so much
-    receipt = w3.eth.waitForTransactionReceipt(tx_hash)      
+    receipt = w3.eth.waitForTransactionReceipt(tx_hash,timeout=300)      
 
     st.write("Transaction mined")
     st.write(dict(receipt))
