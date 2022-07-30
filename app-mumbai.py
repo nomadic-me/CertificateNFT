@@ -11,7 +11,7 @@ import requests
 load_dotenv()
 
 # Create a W3 Connection
-w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
+w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_RPOVIDER_URI")))
 private_key = os.getenv("PRIVATE_KEY")
 contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
 
@@ -129,7 +129,7 @@ if st.button("Award Certificate"):
  
     tx = contract.functions.mint(student_account,cert_uri).buildTransaction({
         'chainId':80001,
-        'gas':30000000,
+        'gas':20000000,
         'nonce':nonce
     })
 
@@ -142,10 +142,10 @@ if st.button("Award Certificate"):
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 
     # This generally works on the mainnet - Rinkeby, not so much
-    receipt = w3.eth.waitForTransactionReceipt(tx_hash,timeout=300)      
+    # receipt = w3.eth.waitForTransactionReceipt(tx_hash,timeout=300)      
 
     st.write("Transaction mined")
-    st.write(dict(receipt))
+    # st.write(dict(receipt))
 
     st.write("You can view the pinned metadata file with the following IPFS Gateway Link")
     st.markdown(f"[Cert IPFS Gateway Link] (https://{cert_uri})")
