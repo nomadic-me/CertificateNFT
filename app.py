@@ -59,7 +59,7 @@ def pin_cert(cert_name, cert_file,**kwargs):
     # Build our NFT Token JSON
     token_json = {
        "name": cert_name,
-       "image": f"ipfs.io/ipfs/{ipfs_file_hash}"
+       "image": f"ipfs://{image_ipfs_cid}"
     }
 
     # Add extra attributes if any passed in
@@ -138,6 +138,11 @@ if st.button("Award Certificate"):
     signed_tx = account.sign_transaction(tx)
 
     st.write("Signed TX Hash: ", signed_tx.rawTransaction)
+    st.write("Loaded Account Address:", nonce)
+    st.write("Student Address:", student_account)
+    st.write("You can view the pinned metadata file with the following IPFS Gateway Link")
+    st.markdown(f"[Cert IPFS Gateway Link] (https://{cert_uri})")
+    st.markdown(f"[Cert IPFS Image Link] (https://{token_json['image']})")    
 
     tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
 
@@ -146,7 +151,3 @@ if st.button("Award Certificate"):
 
     st.write("Transaction mined")
     st.write(dict(receipt))
-
-    st.write("You can view the pinned metadata file with the following IPFS Gateway Link")
-    st.markdown(f"[Cert IPFS Gateway Link] (https://{cert_uri})")
-    st.markdown(f"[Cert IPFS Image Link] (https://{token_json['image']})")
